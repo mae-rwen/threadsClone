@@ -1,31 +1,43 @@
-import { StyleSheet } from 'react-native';
+import {
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  RefreshControl,
+} from "react-native";
 
-import EditScreenInfo from '../../components/EditScreenInfo';
-import { Text, View } from '../../components/Themed';
+import EditScreenInfo from "../../components/EditScreenInfo";
+import { Text, View } from "../../components/Themed";
+import { useContext } from "react";
+import { ThreadsContext } from "../../context/thread-context";
+import ThreadsItem from "../../components/ThreadsItem";
 
 export default function TabOneScreen() {
+
+const threads = useContext(ThreadsContext) 
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
-    </View>
+    <SafeAreaView style={{ marginTop: 40 }}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingHorizontal: 10,
+          paddingVertical: 30,
+        }}
+        refreshControl={
+          <RefreshControl
+            onRefresh={() => {}}
+            refreshing={false}
+            tintColor={"transparent"}
+          />
+        }
+      >
+        <Image
+          source={require("../../assets/images/Threads_(app).png")}
+          style={{ width: 40, height: 40, alignSelf: "center" }}
+        />
+        {threads.map((thread) => (
+        <ThreadsItem key={thread.id} {...thread}/>))}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-});
