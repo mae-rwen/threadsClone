@@ -1,4 +1,4 @@
-import { View, useColorScheme } from "react-native";
+import { StyleSheet, View, useColorScheme } from "react-native";
 import React from "react";
 import { Thread } from "../types/threads";
 import { Text } from "./Themed";
@@ -10,18 +10,79 @@ import {
   MaterialIcons,
 } from "@expo/vector-icons";
 import { timeAgo } from "../utils/time-ago";
+import { Image } from "expo-image";
+
+export const blurhash =
+  "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
 export default function ThreadsItem(thread: Thread): JSX.Element {
   return (
-    <View>
-      <Text>{thread.author.username}</Text>
-      <PostHeading
-        name={thread.author.name}
-        createdAt={thread.createdAt}
-        verified={thread.author.verified}
+    <View style={styles.container}>
+      <PostLeftSide {...thread} />
+      <View style={{ gap: 6, flexShrink: 1 }}>
+        <PostHeading
+          name={thread.author.name}
+          createdAt={thread.createdAt}
+          verified={thread.author.verified}
+        />
+        <Text>{thread.content}</Text>
+        {thread.image && (
+          <Image
+            source={thread.image}
+            style={{ width: "100%", minHeight: 300, borderRadius: 10 }}
+            placeholder={blurhash}
+            contentFit="cover"
+            transition={200}
+          />
+        )}
+        <BottomIcons />
+        <PostFooter replies={thread.repliesCount} likes={thread.likesCount} />
+      </View>
+    </View>
+  );
+}
+
+function PostLeftSide(thread: Thread) {
+  const currentTheme = useColorScheme();
+  const borderColor = currentTheme === "light" ? "#00000020" : "#ffffff20";
+
+  return (
+    <View style={{ justifyContent: "space-between" }}>
+      <Image
+        source={thread.author.photo}
+        style={styles.image}
+        placeholder={blurhash}
+        contentFit="cover"
+        transition={200}
       />
-      <BottomIcons />
-      <PostFooter replies={thread.repliesCount} likes={thread.likesCount} />
+      <View
+        style={{
+          borderWidth: 1,
+          alignSelf: "center",
+          borderColor: borderColor,
+          flexGrow: 1,
+        }}
+      />
+      <View
+        style={{
+          width: 20,
+          alignItems: "center",
+          alignSelf: "center",
+          gap: 3,
+        }}
+      >
+        {[1, 2, 3].map((index) => (
+          <Image
+            key={index}
+            // @ts-ignore
+            source={thread.replies[index - 1]?.author.photo}
+            style={{ width: index * 9, height: index * 9, borderRadius: 15 }}
+            placeholder={blurhash}
+            contentFit="cover"
+            transition={500}
+          />
+        ))}
+      </View>
     </View>
   );
 }
@@ -45,7 +106,7 @@ function PostHeading({
       }}
     >
       <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-        <Text style={{ fontWeight: "500" }}>{name}</Text>
+        <Text style={{ fontWeight: "bold" }}>{name}</Text>
         {verified && (
           <MaterialIcons name="verified" size={14} color="#60a5fa" />
         )}
@@ -85,3 +146,17 @@ export function BottomIcons() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    gap: 6,
+    paddingBottom: 30,
+    marginTop: 20,
+  },
+  image: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+});
